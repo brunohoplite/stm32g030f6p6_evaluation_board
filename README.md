@@ -1,1 +1,1 @@
-# stm32g030f6p6_evaluation_board
+# STM32G030F6P6 Evaluation board
