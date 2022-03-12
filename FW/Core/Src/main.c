@@ -42,6 +42,14 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 uint32_t adc1DmaBuf[ADC1_BUF_LEN];
 uint32_t heartBeatTicks;
+
+USER_LEDS_START
+USER_LED(
+		.ledPort = USER_LED_GPIO_Port,
+		.ledPin = USER_LED_Pin,
+		.kind = LED_HEARTBEAT,
+		.isActiveLow = false)
+USER_LEDS_END
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -69,7 +77,7 @@ static void setInitialState(void)
 	HAL_ADC_Start_DMA(&hadc1, adc1DmaBuf, ADC1_BUF_LEN);
 
 	// User initialization
-	userLedInit(USER_LED_GPIO_Port, USER_LED_Pin);
+	userLedInit();
 }
 
 static void pollingTasks(void)
@@ -79,10 +87,10 @@ static void pollingTasks(void)
 
 static void onSwPressed(void)
 {
-	unsigned period = userLedGetHeartBeatPeriod();
+	unsigned period = userLedGetHeartBeatPeriod(&userLedModules[0]);
 	unsigned newPeriod = (period == DEFAULT_USER_LED_PERIOD) ? ALTERNATE_LED_PERIOD : DEFAULT_USER_LED_PERIOD;
 
-	userLedSetHeartBeatPeriod(newPeriod);
+	userLedSetHeartBeatPeriod(&userLedModules[0], newPeriod);
 }
 
 // HAL interrupt callbacks
