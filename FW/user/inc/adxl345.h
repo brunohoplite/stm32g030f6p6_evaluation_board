@@ -35,6 +35,7 @@ typedef struct{
 
 // API
 void adxl345Init(void);
+void adxl345OnInterrupt(Adxl345Context* ctx);
 
 extern Adxl345Context adxl345Modules[];
 extern const unsigned adxl345ModulesCount;

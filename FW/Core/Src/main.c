@@ -119,6 +119,15 @@ void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
 		onSwPressed();
 }
 
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+{
+	if(GPIO_Pin == INT1_Pin)
+	{
+		onSwPressed();
+		adxl345OnInterrupt(&adxl345Modules[0]);
+	}
+}
+
 uint8_t slow[] = "User led blink rate set to slow\n";
 uint8_t fast[] = "User led blink rate set to fast\n";
 
