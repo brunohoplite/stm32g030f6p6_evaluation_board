@@ -23,3 +23,6 @@ This board will allow you to interface the MCU with interesting devices such as:
 The FW is developped and compiled in STM32CubeIDE v1.6.1.
 For debugging you'll need an ST-LINK/V2 which can also be used to download the program.
 It is also possible to download it via USB.
+
+## Assembled PCB
+![Alt text](PCB/stm32g0f0_eval_picture.jpg?raw=true)
