@@ -11,6 +11,7 @@
 #include "user_led.h"
 #include "ds18b20.h"
 #include <stdio.h>
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -158,21 +159,27 @@ int main(void)
   setInitialState();
   Ds18b20_Init();
   uint32_t tick = HAL_GetTick();
+  bool started = false;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if((HAL_GetTick() - tick) >= 1000)
+	  if(started && DS18B20_AllDone(&OneWire))
 	  {
-		  DS18B20_StartAll(&OneWire);
-		  while(!DS18B20_AllDone(&OneWire));
 		  DS18B20_Read(&OneWire, rom, &temp);
 		  unsigned uTemp = (unsigned)(temp * 100);
 		  char str[6];
 		  sprintf(str, "%u\r\n", uTemp);
 		  HAL_UART_Transmit(&huart2, (uint8_t*)str, 6, 100);
+		  started = false;
+	  }
+
+	  if((HAL_GetTick() - tick) >= 1000)
+	  {
+		  DS18B20_StartAll(&OneWire);
+		  started = true;
 		  tick = HAL_GetTick();
 	  }
 	  pollingTasks();
