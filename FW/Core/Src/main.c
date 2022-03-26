@@ -9,7 +9,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "user_led.h"
-#include "oled.h"
 #include "adxl345.h"
 /* USER CODE END Includes */
 
@@ -87,7 +86,6 @@ static void setInitialState(void)
 	// User initialization
 	userLedInit();
 	adxl345Init();
-	oledInit();
 }
 
 static void pollingTasks(void)
@@ -128,18 +126,6 @@ void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
 	}
 }
 
-uint8_t slow[] = "User led blink rate set to slow\n";
-uint8_t fast[] = "User led blink rate set to fast\n";
-
-static void sendSlow(void)
-{
-	HAL_UART_Transmit(&huart2, slow, ARRAY_SIZE(slow), 100);
-}
-
-void sendFast(void)
-{
-	HAL_UART_Transmit(&huart2, fast, ARRAY_SIZE(fast), 100);
-}
 /* USER CODE END 0 */
 
 /**
@@ -178,7 +164,6 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   setInitialState();
-  HAL_UART_Transmit(&huart2, (uint8_t*)"STM32G030F6P6 evaluation board starting nowww\n", 46, 1000);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -186,20 +171,6 @@ int main(void)
   while (1)
   {
 	  pollingTasks();
-	  uint8_t data;
-	  if(HAL_UART_Receive(&huart2, &data, 1, 10) == HAL_OK)
-	  {
-		  if((char)data == 'f')
-		  {
-			  userLedSetHeartBeatPeriod(&userLedModules[0], ALTERNATE_LED_PERIOD);
-			  sendFast();
-		  }
-		  else if((char)data == 's')
-		  {
-			  userLedSetHeartBeatPeriod(&userLedModules[0], DEFAULT_USER_LED_PERIOD);
-			  sendSlow();
-		  }
-	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

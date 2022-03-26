@@ -54,6 +54,7 @@ static HalStatus writeRegister(Adxl345Context* ctx, uint8_t registerAddress, uin
 
 void adxl345OnInterrupt(Adxl345Context* ctx)
 {
+	// Read interrupt source register to clear pending interrupts
 	uint8_t val;
 	readRegister(ctx, INT_SOURCE, &val);
 }
@@ -65,6 +66,7 @@ void adxl345Init(void)
 		Adxl345Context* ctx = &adxl345Modules[i];
 		uint8_t val;
 
+		// TODO: f HAL fails log via com port
 		if(writeRegister(ctx, THRESH_TAP, 0x30) != HAL_OK)
 			continue;
 
@@ -77,25 +79,13 @@ void adxl345Init(void)
 		if(writeRegister(ctx, WINDOW, 0xF0) != HAL_OK)
 			continue;
 
-		if(writeRegister(ctx, TAP_AXES, 7) != HAL_OK)
+		if(writeRegister(ctx, TAP_AXES, 7) != HAL_OK) // Enable the tap detection on all axis
 			continue;
 
-		readRegister(ctx, INT_ENABLE, &val);
-		if(writeRegister(ctx, INT_ENABLE, (1 << 5) ) != HAL_OK)
+		if(writeRegister(ctx, INT_ENABLE, (1 << 5) ) != HAL_OK) // Enable INT1
 			continue;
 
-		readRegister(ctx, POWER_CTL, &val);
 		if(writeRegister(ctx, POWER_CTL, (1 << 3) ) != HAL_OK)
 			continue;
-
-
-		if(readRegister(ctx, INT_ENABLE, &val) == HAL_OK)
-		{
-			userLedSetHeartBeatPeriod(&userLedModules[0], ALTERNATE_LED_PERIOD);
-		}
-		else
-		{
-			asm("nop");
-		}
 	}
 }
