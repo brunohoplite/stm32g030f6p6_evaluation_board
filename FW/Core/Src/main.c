@@ -12,6 +12,7 @@
 #include "ds18b20.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include "adxl345.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -22,7 +23,6 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define ADC1_BUF_LEN    256
-#define ALTERNATE_LED_PERIOD    250
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -59,6 +59,14 @@ extern OneWire_t OneWire;
 extern Ds18b20Sensor_t	ds18b20[_DS18B20_MAX_SENSORS];
 uint8_t* rom = &ds18b20[0].Address[0];
 float temp;
+
+ADXL_345_START
+ADXL_345(.hi2c = &hi2c1,
+		 .i2cId = 0x53,
+		 .deviceId = 0xE5,
+		 .intPin = INT1_Pin)
+ADXL_345_END
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -88,6 +96,7 @@ static void setInitialState(void)
 
 	// User initialization
 	userLedInit();
+	adxl345Init();
 }
 
 static void pollingTasks(void)
@@ -118,6 +127,16 @@ void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
 	if(GPIO_Pin == USER_SW_Pin)
 		onSwPressed();
 }
+
+void HAL_GPIO_EXTI_Rising_Callback(uint16_t GPIO_Pin)
+{
+	if(GPIO_Pin == INT1_Pin)
+	{
+		onSwPressed();
+		adxl345OnInterrupt(&adxl345Modules[0]);
+	}
+}
+
 /* USER CODE END 0 */
 
 /**
