@@ -64,7 +64,6 @@ void adxl345Init(void)
 	for(unsigned i = 0; i < adxl345ModulesCount; i ++)
 	{
 		Adxl345Context* ctx = &adxl345Modules[i];
-		uint8_t val;
 
 		// TODO: f HAL fails log via com port
 		if(writeRegister(ctx, THRESH_TAP, 0x30) != HAL_OK)
