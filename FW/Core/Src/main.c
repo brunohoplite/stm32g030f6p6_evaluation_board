@@ -9,7 +9,9 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "user_led.h"
+#include "ds18b20.h"
 #include "adxl345.h"
+#include "temp_sensor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -36,12 +38,15 @@ I2C_HandleTypeDef hi2c1;
 SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim14;
+TIM_HandleTypeDef htim16;
 
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 uint32_t adc1DmaBuf[ADC1_BUF_LEN];
 uint32_t heartBeatTicks;
+extern OneWire_t OneWire;
+extern Ds18b20Sensor_t	ds18b20[_DS18B20_MAX_SENSORS];
 
 USER_LEDS_START
 USER_LED(
@@ -57,6 +62,13 @@ ADXL_345(.hi2c = &hi2c1,
 		 .deviceId = 0xE5,
 		 .intPin = INT1_Pin)
 ADXL_345_END
+
+TEMP_SENSORS_START
+TEMP_SENSOR(
+		.oneWire = &OneWire,
+		.rom = &ds18b20[0].Address[0])
+TEMP_SENSORS_END
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -68,6 +80,7 @@ static void MX_I2C1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_TIM14_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_TIM16_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -86,11 +99,13 @@ static void setInitialState(void)
 	// User initialization
 	userLedInit();
 	adxl345Init();
+	tempSensorInit();
 }
 
 static void pollingTasks(void)
 {
 	userLedHeartBeat();
+	tempSensorPollingTask();
 }
 
 static void onSwPressed(void)
@@ -162,6 +177,7 @@ int main(void)
   MX_SPI1_Init();
   MX_TIM14_Init();
   MX_USART2_UART_Init();
+  MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
   setInitialState();
   /* USER CODE END 2 */
@@ -421,6 +437,38 @@ static void MX_TIM14_Init(void)
 }
 
 /**
+  * @brief TIM16 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM16_Init(void)
+{
+
+  /* USER CODE BEGIN TIM16_Init 0 */
+
+  /* USER CODE END TIM16_Init 0 */
+
+  /* USER CODE BEGIN TIM16_Init 1 */
+
+  /* USER CODE END TIM16_Init 1 */
+  htim16.Instance = TIM16;
+  htim16.Init.Prescaler = 63;
+  htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim16.Init.Period = 65535;
+  htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim16.Init.RepetitionCounter = 0;
+  htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM16_Init 2 */
+
+  /* USER CODE END TIM16_Init 2 */
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -490,7 +538,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(USER_LED_GPIO_Port, USER_LED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(TEMP_DATA_GPIO_Port, TEMP_DATA_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(DS18B20_GPIO_Port, DS18B20_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PC15 */
   GPIO_InitStruct.Pin = GPIO_PIN_15;
@@ -519,12 +567,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(INT1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : TEMP_DATA_Pin */
-  GPIO_InitStruct.Pin = TEMP_DATA_Pin;
+  /*Configure GPIO pin : DS18B20_Pin */
+  GPIO_InitStruct.Pin = DS18B20_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(TEMP_DATA_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(DS18B20_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI0_1_IRQn, 2, 0);

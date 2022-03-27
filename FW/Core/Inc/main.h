@@ -74,8 +74,8 @@ void Error_Handler(void);
 #define INT1_Pin GPIO_PIN_11
 #define INT1_GPIO_Port GPIOA
 #define INT1_EXTI_IRQn EXTI4_15_IRQn
-#define TEMP_DATA_Pin GPIO_PIN_12
-#define TEMP_DATA_GPIO_Port GPIOA
+#define DS18B20_Pin GPIO_PIN_12
+#define DS18B20_GPIO_Port GPIOA
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */
