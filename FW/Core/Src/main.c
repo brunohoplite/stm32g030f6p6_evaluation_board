@@ -10,9 +10,8 @@
 /* USER CODE BEGIN Includes */
 #include "user_led.h"
 #include "ds18b20.h"
-#include <stdio.h>
-#include <stdbool.h>
 #include "adxl345.h"
+#include "temp_sensor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -46,6 +45,8 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 uint32_t adc1DmaBuf[ADC1_BUF_LEN];
 uint32_t heartBeatTicks;
+extern OneWire_t OneWire;
+extern Ds18b20Sensor_t	ds18b20[_DS18B20_MAX_SENSORS];
 
 USER_LEDS_START
 USER_LED(
@@ -55,17 +56,18 @@ USER_LED(
 		.isActiveLow = false)
 USER_LEDS_END
 
-extern OneWire_t OneWire;
-extern Ds18b20Sensor_t	ds18b20[_DS18B20_MAX_SENSORS];
-uint8_t* rom = &ds18b20[0].Address[0];
-float temp;
-
 ADXL_345_START
 ADXL_345(.hi2c = &hi2c1,
 		 .i2cId = 0x53,
 		 .deviceId = 0xE5,
 		 .intPin = INT1_Pin)
 ADXL_345_END
+
+TEMP_SENSORS_START
+TEMP_SENSOR(
+		.oneWire = &OneWire,
+		.rom = &ds18b20[0].Address[0])
+TEMP_SENSORS_END
 
 /* USER CODE END PV */
 
@@ -97,11 +99,13 @@ static void setInitialState(void)
 	// User initialization
 	userLedInit();
 	adxl345Init();
+	tempSensorInit();
 }
 
 static void pollingTasks(void)
 {
 	userLedHeartBeat();
+	tempSensorPollingTask();
 }
 
 static void onSwPressed(void)
@@ -176,31 +180,12 @@ int main(void)
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
   setInitialState();
-  Ds18b20_Init();
-  uint32_t tick = HAL_GetTick();
-  bool started = false;
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if(started && DS18B20_AllDone(&OneWire))
-	  {
-		  DS18B20_Read(&OneWire, rom, &temp);
-		  unsigned uTemp = (unsigned)(temp * 100);
-		  char str[6];
-		  sprintf(str, "%u\r\n", uTemp);
-		  HAL_UART_Transmit(&huart2, (uint8_t*)str, 6, 100);
-		  started = false;
-	  }
-
-	  if((HAL_GetTick() - tick) >= 1000)
-	  {
-		  DS18B20_StartAll(&OneWire);
-		  started = true;
-		  tick = HAL_GetTick();
-	  }
 	  pollingTasks();
     /* USER CODE END WHILE */
 
