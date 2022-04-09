@@ -12,6 +12,8 @@
 #include "ds18b20.h"
 #include "adxl345.h"
 #include "temp_sensor.h"
+#include "ssd1306.h"
+#include "ssd1306_tests.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -100,6 +102,7 @@ static void setInitialState(void)
 	userLedInit();
 	adxl345Init();
 	tempSensorInit();
+	HAL_Delay(10);
 }
 
 static void pollingTasks(void)
@@ -180,6 +183,7 @@ int main(void)
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
   setInitialState();
+  ssd1306_TestAll();
   /* USER CODE END 2 */
 
   /* Infinite loop */

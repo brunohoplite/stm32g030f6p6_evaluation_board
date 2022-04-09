@@ -1,6 +1,3 @@
 [submodule "common_modules"]
 	path = common_modules
 	url = https://github.com/brunohoplite/common_modules.git
-[submodule "STM32-Tutorials"]
-	path = STM32-Tutorials
-	url = https://github.com/vuquangtrong/STM32-Tutorials.git
