@@ -15,6 +15,7 @@
 #include "ssd1306.h"
 #include "ssd1306_tests.h"
 #include "user_menu.h"
+#include "voltage_monitor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -101,6 +102,7 @@ static void setInitialState(void)
 
 	// User initialization
 	userLedInit();
+	voltageMoniorInit(&adc1DmaBuf[0], ADC1_BUF_LEN);
 	adxl345Init();
 	tempSensorInit();
 	ssd1306_Init();
@@ -127,9 +129,7 @@ static void onSwPressed(void)
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
 	if(hadc->Instance == ADC1)
-	{
-
-	}
+		voltageMonitorOnNewVal();
 }
 
 void HAL_GPIO_EXTI_Falling_Callback(uint16_t GPIO_Pin)
