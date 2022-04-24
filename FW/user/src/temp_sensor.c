@@ -38,3 +38,8 @@ void tempSensorPollingTask(void)
 		}
 	}
 }
+
+unsigned getTemperature(TempSensorContext* ctx)
+{
+	return (unsigned)(ctx->temperature * 100);
+}

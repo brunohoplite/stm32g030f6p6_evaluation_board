@@ -38,7 +38,7 @@ typedef struct {
 
 void tempSensorInit(void);
 void tempSensorPollingTask(void);
-float getTemperature(TempSensorContext* ctx);
+unsigned getTemperature(TempSensorContext* ctx);
 
 extern TempSensorContext tempSensorModules[];
 extern const unsigned tempSensorModulesCount;
