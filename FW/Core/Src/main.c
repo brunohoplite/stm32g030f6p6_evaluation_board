@@ -14,6 +14,7 @@
 #include "temp_sensor.h"
 #include "ssd1306.h"
 #include "ssd1306_tests.h"
+#include "user_menu.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -102,13 +103,15 @@ static void setInitialState(void)
 	userLedInit();
 	adxl345Init();
 	tempSensorInit();
-	HAL_Delay(10);
+	ssd1306_Init();
+	userMenuInit();
 }
 
 static void pollingTasks(void)
 {
 	userLedHeartBeat();
 	tempSensorPollingTask();
+	userMenuTask();
 }
 
 static void onSwPressed(void)
@@ -183,7 +186,6 @@ int main(void)
   MX_TIM16_Init();
   /* USER CODE BEGIN 2 */
   setInitialState();
-  ssd1306_TestAll();
   /* USER CODE END 2 */
 
   /* Infinite loop */
